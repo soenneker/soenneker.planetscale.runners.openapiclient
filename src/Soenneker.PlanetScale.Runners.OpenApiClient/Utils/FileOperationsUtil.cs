@@ -60,7 +60,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
             : await _gitUtil.CloneToTempDirectory($"https://github.com/soenneker/{Constants.Library.ToLowerInvariantFast()}", cancellationToken: cancellationToken);
 
         string projectPath = Path.Combine(gitDirectory, "src", Constants.Library, $"{Constants.Library}.csproj");
-        if (!File.Exists(projectPath))
+        if (!(await _fileUtil.Exists(projectPath)))
             throw new InvalidOperationException($"Expected client project was not found: {projectPath}");
 
         string targetFilePath = Path.Combine(gitDirectory, "openapi.json");
@@ -98,7 +98,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         await _kiotaUtil.Generate(fixedFilePath, "PlanetScaleOpenApiClient", Constants.Library, gitDirectory, cancellationToken).NoSync();
 
-        if (!File.Exists(Path.Combine(srcDirectory, "PlanetScaleOpenApiClient.cs")))
+        if (!(await _fileUtil.Exists(Path.Combine(srcDirectory, "PlanetScaleOpenApiClient.cs"))))
             throw new InvalidOperationException("Kiota did not generate the PlanetScale client.");
 
         await BuildAndPush(gitDirectory, !local, cancellationToken).NoSync();
