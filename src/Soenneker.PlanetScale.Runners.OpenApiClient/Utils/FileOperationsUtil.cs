@@ -97,6 +97,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         await DeleteAllExceptCsproj(srcDirectory, cancellationToken);
 
         await _kiotaUtil.Generate(fixedFilePath, "PlanetScaleOpenApiClient", Constants.Library, gitDirectory, cancellationToken).NoSync();
+        await _openApiFixer.SanitizeGeneratedEnumMembers(Path.Combine(gitDirectory, "src", Constants.Library), cancellationToken).NoSync();
 
         if (!(await _fileUtil.Exists(Path.Combine(srcDirectory, "PlanetScaleOpenApiClient.cs"))))
             throw new InvalidOperationException("Kiota did not generate the PlanetScale client.");
